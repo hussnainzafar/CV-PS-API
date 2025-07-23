@@ -21,14 +21,14 @@ async def detect_nose(file: UploadFile = File(...)):
         raise HTTPException(status_code=404, detail="No face detected")
 
     draw = ImageDraw.Draw(image)
-    # Nose tip and nostrils (using Mediapipe's FaceMesh landmark indices)
-    NOSE_LANDMARKS = [1, 2, 98, 327, 168, 197, 195, 5, 4, 19, 94, 2]  # tip, nostrils, bridge
+    # Use 5 key nose points: tip, left/right nostril, upper/lower bridge
+    NOSE_LANDMARKS = [1, 2, 98, 327, 168]  # tip, left nostril, right nostril, upper bridge, lower bridge
     h, w = np_image.shape[:2]
     for face_landmarks in results.multi_face_landmarks:
         for idx in NOSE_LANDMARKS:
             lm = face_landmarks.landmark[idx]
             x, y = int(lm.x * w), int(lm.y * h)
-            draw.ellipse((x-3, y-3, x+3, y+3), fill="green")
+            draw.ellipse((x-4, y-4, x+4, y+4), fill="green")
 
     img_bytes = io.BytesIO()
     image.save(img_bytes, format="JPEG")

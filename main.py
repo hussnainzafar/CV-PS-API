@@ -153,16 +153,18 @@ async def detect_facial_landmarks(file: UploadFile = File(...)):
 
         draw = ImageDraw.Draw(image)
         h, w = np_image.shape[:2]
-        # Example: Draw all facial landmarks as small blue dots
+        # Draw only 5 key nose landmarks: tip, left nostril, right nostril, upper bridge, lower bridge
+        NOSE_LANDMARKS = [1, 2, 98, 327, 168]  # Mediapipe FaceMesh indices
         for face_landmarks in results.multi_face_landmarks:
-            for idx, lm in enumerate(face_landmarks.landmark):
+            for idx in NOSE_LANDMARKS:
+                lm = face_landmarks.landmark[idx]
                 x, y = int(lm.x * w), int(lm.y * h)
-                draw.ellipse((x-2, y-2, x+2, y+2), fill="blue")
+                draw.ellipse((x-4, y-4, x+4, y+4), fill="green")
 
         img_bytes = io.BytesIO()
         image.save(img_bytes, format="JPEG")
         img_bytes.seek(0)
-        return StreamingResponse(img_bytes, media_type="image/jpeg", headers={"Content-Disposition": "attachment; filename=landmarks_detected.jpg"})
+        return StreamingResponse(img_bytes, media_type="image/jpeg", headers={"Content-Disposition": "attachment; filename=nose_landmarks_detected.jpg"})
 
     except HTTPException:
         raise
